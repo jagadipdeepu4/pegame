@@ -1,0 +1,99 @@
+import java.util.Scanner;
+
+public class PegGame {
+    private static final int BOARD_SIZE = 5;
+    private static final char PEG_SYMBOL = 'O';
+    private static final char EMPTY_SYMBOL = '-';
+    
+    private char[][] board;
+
+    public PegGame() {
+        board = new char[BOARD_SIZE][BOARD_SIZE];
+        initializeBoard();
+    }
+
+    private void initializeBoard() {
+        // Set all slots to empty except the center
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+               
+                if (i == BOARD_SIZE / 2 && j == BOARD_SIZE / 2) {
+                    board[i][j] = PEG_SYMBOL; // Place a peg in the center
+                } else {
+                    board[i][j] = EMPTY_SYMBOL; // Place an empty slot
+                }
+            }
+        }
+    }
+
+    private void displayBoard() {
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                System.out.print(board[i][j] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    private boolean isValidMove(int fromRow, int fromCol, int toRow, int toCol) {
+        // Check if the source position has a peg
+        if (board[fromRow][fromCol] != PEG_SYMBOL) {
+            return false;
+        }
+        // Check if the destination position is empty
+        if (board[toRow][toCol] != EMPTY_SYMBOL) {
+            return false;
+        }
+        // Check if the move is diagonal and there's a peg to jump over
+        int jumpRow = (fromRow + toRow) / 2;
+        int jumpCol = (fromCol + toCol) / 2;
+        return board[jumpRow][jumpCol] == PEG_SYMBOL;
+    }
+
+    private boolean makeMove(int fromRow, int fromCol, int toRow, int toCol) {
+        if (!isValidMove(fromRow, fromCol, toRow, toCol)) {
+            return false;
+        }
+        // Make the move
+        board[fromRow][fromCol] = EMPTY_SYMBOL;
+        board[(fromRow + toRow) / 2][(fromCol + toCol) / 2] = EMPTY_SYMBOL;
+        board[toRow][toCol] = PEG_SYMBOL;
+        return true;
+    }
+
+    public void playGame() {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            displayBoard();
+            System.out.println("Enter move (fromRow fromCol toRow toCol), or type 'quit' to exit:");
+            String input = scanner.nextLine();
+            if (input.equalsIgnoreCase("quit")) {
+                break;
+            }
+            String[] tokens = input.split(" ");
+            if (tokens.length != 4) {
+                System.out.println("Invalid input. Please enter four space-separated integers.");
+                continue;
+            }
+            try {
+                int fromRow = Integer.parseInt(tokens[0]);
+                int fromCol = Integer.parseInt(tokens[1]);
+                int toRow = Integer.parseInt(tokens[2]);
+                int toCol = Integer.parseInt(tokens[3]);
+                if (makeMove(fromRow, fromCol, toRow, toCol)) {
+                    System.out.println("Move successful!");
+                } else {
+                    System.out.println("Invalid move. Please try again.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter four integers.");
+            }
+        }
+        scanner.close();
+    }
+
+    public static void main(String[] args) {
+        PegGame game = new PegGame();
+        game.playGame();
+    }
+}
